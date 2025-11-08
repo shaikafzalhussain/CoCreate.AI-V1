@@ -111,7 +111,7 @@ To make AI feel *alive, interactive, and emotionally intelligent* — a true **p
 
 | Category | Tools |
 |-----------|-------|
-| 💻 Frontend | React, TailwindCSS |
+| 💻 Frontend | React, TailwindCSS ( cursor ) |
 | 🤖 AI Integration | OpenRouter API |
 | 🧬 3D Animation | Three.js |
 | ☁️ Deployment | Replit |
