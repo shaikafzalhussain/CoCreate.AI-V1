@@ -9,8 +9,8 @@
 - Ashok  
 - Rukmini  
 - Poojitha
-- 🌐 **Live Demo:**[CoCreate.AI on Replit](https://932cd8aa-ada9-45c6-a88e-6a6ca9f9140e-00-2ph93f9qad7ou.kirk.replit.dev/)  
-💻 **GitHub Repo:**[CoCreate.AI-V1](https://github.com/shaikafzalhussain/CoCreate.AI-V1)
+- 🌐 **Live Demo:** [CoCreate.AI on Replit](https://932cd8aa-ada9-45c6-a88e-6a6ca9f9140e-00-2ph93f9qad7ou.kirk.replit.dev/)  
+💻 **GitHub Repo:** [CoCreate.AI-V1](https://github.com/shaikafzalhussain/CoCreate.AI-V1)
 
 ---
 
