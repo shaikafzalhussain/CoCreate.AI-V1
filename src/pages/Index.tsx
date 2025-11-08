@@ -231,6 +231,26 @@ const Index = () => {
       // In production, always use the secure API route
       const useDirectApi = isDev && import.meta.env.VITE_OPENROUTER_API_KEY;
       
+      // Check if API is configured
+      if (isDev && !useDirectApi) {
+        // Show helpful message when API is not configured
+        const setupMessage = `🔧 **API Setup Required**\n\nTo use AI features, you need to configure an API key:\n\n1. Get a free API key from OpenRouter.ai\n2. Create a \`.env.local\` file in the project root\n3. Add: \`VITE_OPENROUTER_API_KEY=your_key_here\`\n4. Restart the dev server\n\nAlternatively, deploy to production where API routes are configured.`;
+        
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === aiMessageId ? { ...msg, content: setupMessage } : msg
+          )
+        );
+        setIsLoading(false);
+        
+        toast({
+          title: "API Configuration Needed",
+          description: "Please set up an OpenRouter API key to use AI features. See the chat for instructions.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       console.log("Calling OpenRouter API", useDirectApi ? "directly" : "via proxy", "with GPT model:", model);
 
       // Try API route first (or use direct API in local dev if env var is set)
