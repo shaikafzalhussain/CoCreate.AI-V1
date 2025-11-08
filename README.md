@@ -129,40 +129,6 @@ C --> D[LLM Response Generation]
 D --> E[UI Chat Rendering]
 E --> F[Session Storage]
 ```
-
-
-
-<h2> 🔧 Installation & Setup </h2>
-<h3> # 1️⃣ Clone the repo </h3>
-
-```
-git clone https://github.com/shaikafzalhussain/CoCreate.AI-V1.git
-```
-
-
-<h3> # 2️⃣ Move into directory </h3>
-
-```
-cd CoCreate.AI-V1
-```
-
-<h3> # 3️⃣ Install dependencies </h3>
-
-```
-npm install
-```
-
-<h3> # 4️⃣ Add your OpenRouter API key in .env </h3>
-  
-```
-VITE_OPENROUTER_API_KEY=your_api_key_here
-```
-
-<h3> # 5️⃣ Run the project </h3>
-
-```
-npm run dev
-```
 <h2> 🧠 Learnings & Takeaways </h2>
 
 Prompt design is as important as model accuracy.
