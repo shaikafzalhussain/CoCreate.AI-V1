@@ -5,10 +5,10 @@
 👥 **Team Name:** Team Snap 
 
 👤 **Team Members:**  
-- [Shaik Afzal Hussain](https://www.linkedin.com/in/afzal-hussain1/)   *(Team Leader)*  
-- Ashok  
-- Rukmini  
-- Poojitha
+- [Shaik Afzal Hussain](https://www.linkedin.com/in/afzal-hussain1/)   *(Team Leader)*  - Content , Vibe coder , Frameworks, Prompt Engineer , AI Integrator , Backend & API 
+- Ashok  - Frontend Developer
+- Rukmini  - Backend 
+- Poojitha - Content & Design Specialist
 - 🌐 **Live Demo:** [CoCreate.AI on Replit](https://932cd8aa-ada9-45c6-a88e-6a6ca9f9140e-00-2ph93f9qad7ou.kirk.replit.dev/)  
 💻 **GitHub Repo:** [CoCreate.AI-V1](https://github.com/shaikafzalhussain/CoCreate.AI-V1)
 
