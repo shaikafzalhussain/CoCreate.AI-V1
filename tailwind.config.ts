@@ -13,6 +13,27 @@ export default {
       },
     },
     extend: {
+        keyframes: {
+          gradientFlow: {
+            "0%, 100%": { backgroundPosition: "0% 50%" },
+            "50%": { backgroundPosition: "100% 50%" },
+          },
+          logoGlow: {
+            "0%, 100%": { filter: "drop-shadow(0 0 2px rgba(0, 230, 255, 0.3))" },
+            "50%": { filter: "drop-shadow(0 0 8px rgba(0, 230, 255, 0.5))" },
+          },
+          buttonGlow: {
+            "0%, 100%": { boxShadow: "0 0 15px rgba(0, 230, 255, 0.3)" },
+            "50%": { boxShadow: "0 0 30px rgba(0, 230, 255, 0.5)" },
+          }
+        },
+        animation: {
+          gradientFlow: "gradientFlow 3s linear infinite",
+          logoGlow: "logoGlow 3s ease-in-out infinite",
+        },
+        textShadow: {
+          glow: "0 0 10px #00e0ff, 0 0 20px #a855f7",
+        },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

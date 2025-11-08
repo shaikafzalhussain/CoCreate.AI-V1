@@ -1,4 +1,4 @@
-const VideoBackground = () => {
+const VideoBackground = ({ isLanding = false }) => {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
       <video
@@ -6,7 +6,7 @@ const VideoBackground = () => {
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-30"
+        className={`absolute inset-0 w-full h-full object-cover ${isLanding ? 'opacity-40' : 'opacity-30'}`}
       >
         <source src="/background.mp4" type="video/mp4" />
       </video>

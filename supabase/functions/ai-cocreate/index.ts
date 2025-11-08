@@ -11,12 +11,9 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, mode } = await req.json();
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-
-    if (!GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY is not configured");
-    }
+    const { prompt, mode, images } = await req.json();
+    // Use the provided API key directly
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "AIzaSyB9FyGQqUElSWe11_YmyTUOCb09rJdHofg";
 
     // System prompts based on mode
     const systemPrompts = {
@@ -27,8 +24,33 @@ serve(async (req) => {
 
     const systemPrompt = systemPrompts[mode as keyof typeof systemPrompts] || systemPrompts.story;
 
+    // Determine which model to use based on whether images are present
+    const hasImages = images && Array.isArray(images) && images.length > 0;
+    // Use gemini-1.5-flash for both text and images (works with v1beta API)
+    const model = "gemini-1.5-flash";
+    
+    // Build parts array
+    const parts: any[] = [];
+    
+    // Add images if present
+    if (hasImages) {
+      for (const imageData of images) {
+        parts.push({
+          inline_data: {
+            mime_type: imageData.mimeType || "image/jpeg",
+            data: imageData.data,
+          },
+        });
+      }
+    }
+    
+    // Add text prompt
+    parts.push({
+      text: `${systemPrompt}\n\nUser input: ${prompt}\n\nContinue or expand on this thoughtfully:`,
+    });
+
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:streamGenerateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -37,18 +59,14 @@ serve(async (req) => {
         body: JSON.stringify({
           contents: [
             {
-              parts: [
-                {
-                  text: `${systemPrompt}\n\nUser input: ${prompt}\n\nContinue or expand on this thoughtfully:`,
-                },
-              ],
+              parts: parts,
             },
           ],
           generationConfig: {
             temperature: 0.9,
             topK: 40,
             topP: 0.95,
-            maxOutputTokens: 1024,
+            maxOutputTokens: 2048,
           },
         }),
       }

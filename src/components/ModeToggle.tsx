@@ -19,13 +19,18 @@ const ModeToggle = ({ mode, onModeChange }: ModeToggleProps) => {
     <div className="flex gap-3 flex-wrap justify-center">
       {modes.map((m) => {
         const Icon = m.icon;
+        const isActive = mode === m.id;
         return (
           <Button
             key={m.id}
-            variant={mode === m.id ? "hero" : "neon"}
+            variant={isActive ? "hero" : "neon"}
             size="sm"
             onClick={() => onModeChange(m.id)}
-            className="flex-col h-auto py-3 px-4 gap-1 min-w-[120px]"
+            className={`flex-col h-auto py-3 px-4 gap-1 min-w-[120px] transition-all duration-300 ${
+              isActive
+                ? "shadow-lg shadow-neon-cyan/50 border-glow-cyan scale-105"
+                : "hover:scale-105"
+            }`}
           >
             <Icon className="h-5 w-5" />
             <span className="text-xs font-semibold">{m.label}</span>

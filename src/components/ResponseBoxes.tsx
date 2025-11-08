@@ -36,16 +36,16 @@ const ResponseBoxes = ({ userInput, aiResponse, isLoading }: ResponseBoxesProps)
           </div>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={() => copyToClipboard(userInput, true)}
-            className="h-8"
+            className="h-8 w-8"
+            title={copiedInput ? "Copied!" : "Copy"}
           >
             {copiedInput ? (
               <Check className="h-4 w-4 text-neon-cyan" />
             ) : (
               <Copy className="h-4 w-4" />
             )}
-            <span className="ml-2 text-xs">{copiedInput ? "Copied!" : "Copy"}</span>
           </Button>
         </div>
         <div className="glass min-h-[200px] rounded-lg p-4 border border-glass-border/50">
@@ -62,17 +62,17 @@ const ResponseBoxes = ({ userInput, aiResponse, isLoading }: ResponseBoxesProps)
           </div>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={() => copyToClipboard(aiResponse, false)}
             disabled={!aiResponse}
-            className="h-8"
+            className="h-8 w-8"
+            title={copiedOutput ? "Copied!" : "Copy"}
           >
             {copiedOutput ? (
               <Check className="h-4 w-4 text-neon-purple" />
             ) : (
               <Copy className="h-4 w-4" />
             )}
-            <span className="ml-2 text-xs">{copiedOutput ? "Copied!" : "Copy"}</span>
           </Button>
         </div>
         <div className="glass min-h-[200px] rounded-lg p-4 border border-glass-border/50 relative">

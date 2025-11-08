@@ -1,0 +1,7 @@
+<![CDATA[<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="180" rx="90" fill="#000B1D"/>
+  <path d="M135 90c0 24.853-20.147 45-45 45V90l45-45c0 12.426 0 32.574 0 45z" fill="#00E6FF"/>
+  <path d="M90 45v45H45c0-24.853 20.147-45 45-45z" fill="#00E6FF"/>
+  <circle cx="67.5" cy="67.5" r="5.625" fill="#00E6FF"/>
+  <circle cx="67.5" cy="90" r="5.625" fill="#00E6FF"/>
+</svg>]]>

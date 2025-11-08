@@ -1,0 +1,29 @@
+@keyframes glowPulse {
+  0%, 100% { 
+    box-shadow: 0 0 5px rgba(0, 246, 255, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  }
+}
+
+@keyframes logoGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(0, 230, 255, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(0, 230, 255, 0.5));
+  }
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

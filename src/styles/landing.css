@@ -1,0 +1,92 @@
+@keyframes name-letter {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.8) skewX(-10deg);
+    filter: brightness(1.5) drop-shadow(0 0 8px #00e0ff);
+    box-shadow: 0 0 0 0 #00e0ff;
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.08) skewX(2deg);
+    filter: brightness(2) drop-shadow(0 0 16px #00e0ff);
+    box-shadow: 0 0 8px 2px #00e0ff;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) skewX(0deg);
+    filter: brightness(1.1) drop-shadow(0 0 8px #00e0ff);
+    box-shadow: 0 0 0 0 #00e0ff;
+  }
+}
+.animate-name-letter {
+  animation: name-letter 0.7s cubic-bezier(0.4,0,0.6,1) both;
+  border-width: 2px;
+  box-shadow: 0 0 8px #00e0ff80;
+}
+html { scroll-behavior: smooth; }
+
+.landing-section { padding: 4rem 1rem; }
+
+.glass-card { 
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all 240ms ease;
+}
+.glass-card:hover { 
+  background: rgba(255,255,255,0.07);
+  box-shadow: 0 6px 30px rgba(0,224,255,0.08);
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 6px rgba(0,224,255,0.28); }
+  50% { box-shadow: 0 0 22px rgba(0,224,255,0.42); }
+  100% { box-shadow: 0 0 6px rgba(0,224,255,0.28); }
+}
+
+/* Nav */
+nav { z-index: 40; }
+
+.feature-card { 
+  background: rgba(10,10,12,0.45); 
+  border: 1px solid rgba(0,224,255,0.05);
+  padding: 1.25rem; 
+  border-radius: 12px; 
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.feature-card:hover { transform: translateY(-6px); box-shadow: 0 10px 30px rgba(0,224,255,0.06); }
+
+.contact-icon { width: 48px; height: 48px; border-radius: 9999px; display:inline-flex; align-items:center; justify-content:center; }
+
+@media (max-width: 768px) {
+  .feature-card { padding: 1rem; }
+}
+.glass-card {
+  @apply bg-white/5 backdrop-blur-md border border-white/10 transition-all duration-300;
+}
+
+.glass-card:hover {
+  @apply bg-white/10 border-white/20;
+  box-shadow: 0 0 20px theme('colors.cyan.400' / 20%);
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 5px theme('colors.cyan.400' / 60%),
+      0 0 10px theme('colors.cyan.400' / 40%);
+  }
+  50% {
+    box-shadow: 
+      0 0 20px theme('colors.cyan.400' / 80%),
+      0 0 30px theme('colors.cyan.400' / 60%);
+  }
+}
