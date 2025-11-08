@@ -166,8 +166,6 @@ const Index = () => {
           .map((f) => fileToBase64(f.file))
       );
 
-      // Use OpenRouter API with GPT models (more reliable)
-      const OPENROUTER_API_KEY = "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";
       const hasImages = imageData.length > 0;
       
       // Use GPT-3.5-turbo for text (cheaper), GPT-4-turbo for images (supports vision)
@@ -222,26 +220,79 @@ const Index = () => {
         });
       }
 
-      // OpenRouter API endpoint
-      const apiUrl = "https://openrouter.ai/api/v1/chat/completions";
-      console.log("Calling OpenRouter API with GPT model:", model);
+      // Use Vercel API route to proxy OpenRouter API calls (keeps API key secure)
+      // In production, always use the API route. In development, try API route first,
+      // then fall back to direct OpenRouter call if API route doesn't exist (for local dev)
+      const isDev = import.meta.env.DEV;
+      const apiUrl = isDev ? "http://localhost:8081/api/openrouter" : "/api/openrouter";
+      const directApiUrl = "https://openrouter.ai/api/v1/chat/completions";
+      
+      // For local development, we can use VITE_OPENROUTER_API_KEY from .env.local
+      // In production, always use the secure API route
+      const useDirectApi = isDev && import.meta.env.VITE_OPENROUTER_API_KEY;
+      
+      console.log("Calling OpenRouter API", useDirectApi ? "directly" : "via proxy", "with GPT model:", model);
 
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-          "HTTP-Referer": window.location.origin, // Optional: for analytics
-          "X-Title": "CoCreate.AI", // Optional: for analytics
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: messages,
-          temperature: 0.9,
-          // Use fewer tokens for images (GPT-4-turbo is more expensive)
-          max_tokens: hasImages ? 500 : 800, // 500 for images, 800 for text
-        }),
-      });
+      // Try API route first (or use direct API in local dev if env var is set)
+      let response: Response;
+      
+      if (useDirectApi) {
+        // Local development: use OpenRouter directly with env var
+        response = await fetch(directApiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(useDirectApi && {
+              "Authorization": `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+              "HTTP-Referer": window.location.origin,
+              "X-Title": "CoCreate.AI",
+            }),
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messages,
+            temperature: 0.9,
+            max_tokens: hasImages ? 500 : 800,
+          }),
+        });
+      } else {
+        // Production or dev without env var: use API route
+        response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messages,
+            temperature: 0.9,
+            max_tokens: hasImages ? 500 : 800,
+          }),
+        });
+        
+        // If API route returns 404 (not found), try direct API as fallback in dev
+        if (!response.ok && response.status === 404 && isDev) {
+          console.warn("API route not found (404), falling back to direct OpenRouter API");
+          const directKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+          if (directKey) {
+            response = await fetch(directApiUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${directKey}`,
+                "HTTP-Referer": window.location.origin,
+                "X-Title": "CoCreate.AI",
+              },
+              body: JSON.stringify({
+                model: model,
+                messages: messages,
+                temperature: 0.9,
+                max_tokens: hasImages ? 500 : 800,
+              }),
+            });
+          }
+        }
+      }
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -259,9 +310,6 @@ const Index = () => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-              "HTTP-Referer": window.location.origin,
-              "X-Title": "CoCreate.AI",
             },
             body: JSON.stringify({
               model: "openai/gpt-3.5-turbo",
@@ -312,16 +360,30 @@ const Index = () => {
         let errorMessage = `Failed to generate AI response: ${response.status}`;
         try {
           const errorJson = JSON.parse(errorText);
-          if (errorJson.error?.message) {
+          
+          // Check for detailed error message
+          if (errorJson.message) {
+            errorMessage = errorJson.message;
+          } else if (errorJson.error?.message) {
             errorMessage = errorJson.error.message;
-            
-            // Handle credit limit errors specifically
-            if (errorMessage.includes("credits") || errorMessage.includes("tokens")) {
-              errorMessage = "Your OpenRouter account has insufficient credits. Please visit https://openrouter.ai/settings/credits to add credits, or the app will use a lower token limit.";
-            }
+          } else if (errorJson.error) {
+            errorMessage = typeof errorJson.error === 'string' ? errorJson.error : JSON.stringify(errorJson.error);
+          }
+          
+          // Check for details field
+          if (errorJson.details) {
+            errorMessage += ` - ${errorJson.details}`;
+          }
+          
+          // Handle specific error cases
+          if (errorMessage.includes("credits") || errorMessage.includes("tokens")) {
+            errorMessage = "Your OpenRouter account has insufficient credits. Please visit https://openrouter.ai/settings/credits to add credits.";
+          } else if (errorMessage.includes("API key") || errorMessage.includes("auth") || errorMessage.includes("credentials")) {
+            errorMessage = "API key error: " + errorMessage + " Please check your OPENROUTER_API_KEY in Vercel environment variables and redeploy.";
           }
         } catch (e) {
           // Use default message
+          console.error("Error parsing error response:", e);
         }
         
         throw new Error(errorMessage);
