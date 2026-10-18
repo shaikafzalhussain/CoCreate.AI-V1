@@ -4,6 +4,7 @@ import { Sparkles as MagicWand } from "lucide-react";
 import { refinePrompt } from "@/lib/refinePrompt";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/lib/useAuth";
 
 type Mode = "story" | "idea" | "tutor";
 
@@ -31,10 +32,6 @@ const placeholderTexts = {
   tutor: "What do you want to master today? 📚",
 };
 
-// Read API keys from Vite environment variables or localStorage
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || "";
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || localStorage.getItem('openrouter_api_key') || "";
-
 const AnimatedInput = ({
   mode,
   value,
@@ -49,6 +46,7 @@ const AnimatedInput = ({
   const [refining, setRefining] = useState(false);
   const [refined, setRefined] = useState(false);
   const [refineNote, setRefineNote] = useState("");
+  const { session } = useAuth();
   // Keyboard shortcut: Cmd+R / Ctrl+R
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -71,16 +69,14 @@ const AnimatedInput = ({
     setRefineNote("");
     try {
       setRefineNote("Refining prompt...");
-      const newPrompt = await refinePrompt(value, GEMINI_API_KEY);
+      const newPrompt = await refinePrompt(value, session?.access_token || "");
       
       // Only update if the prompt actually changed
       if (newPrompt !== value) {
         onChange(newPrompt);
         setRefining(false);
         setRefined(true);
-        // Show which AI model refined the prompt
-        const model = OPENROUTER_API_KEY ? "Claude-3" : (GEMINI_API_KEY ? "Gemini" : "AI");
-        setRefineNote(`Prompt refined by ${model} ✨`);
+        setRefineNote("Prompt refined ✨");
         setTimeout(() => setRefined(false), 1200);
       } else {
         setRefining(false);

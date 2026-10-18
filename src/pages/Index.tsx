@@ -6,6 +6,7 @@ import HamburgerMenu from "@/components/HamburgerMenu";
 import AnimatedInput from "@/components/AnimatedInput";
 import ChatMessage from "@/components/ChatMessage";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/useAuth";
 import logo from "@/assets/logo.png";
 
 type Mode = "story" | "idea" | "tutor";
@@ -32,6 +33,9 @@ interface ChatHistoryItem {
   messages: Message[];
 }
 
+type UserContentPart = { type: "text"; text: string } | { type: "image_url"; image_url: { url: string } };
+type OpenRouterMessage = { role: "system" | "user" | "assistant"; content: string | UserContentPart[] };
+
 const Index = () => {
   const [mode, setMode] = useState<Mode>("story");
   const [userInput, setUserInput] = useState("");
@@ -45,6 +49,7 @@ const Index = () => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const isLoadingFromHistoryRef = useRef(false);
   const { toast } = useToast();
+  const { session } = useAuth();
 
   // Load chat history from localStorage
   useEffect(() => {
@@ -181,7 +186,7 @@ const Index = () => {
       const systemPrompt = systemPrompts[mode] || systemPrompts.story;
 
       // Build messages array for OpenRouter (similar to OpenAI format)
-      const messages: any[] = [
+      const messages: OpenRouterMessage[] = [
         {
           role: "system",
           content: systemPrompt,
@@ -191,7 +196,7 @@ const Index = () => {
       // Add user message with images if present
       // For GPT-4-turbo with images, use vision API format
       if (hasImages) {
-        const userContent: any[] = [];
+        const userContent: UserContentPart[] = [];
         // Add text first if present
         if (userInput) {
           userContent.push({
@@ -220,99 +225,21 @@ const Index = () => {
         });
       }
 
-      // Use Vercel API route to proxy OpenRouter API calls (keeps API key secure)
-      // In production, always use the API route. In development, try API route first,
-      // then fall back to direct OpenRouter call if API route doesn't exist (for local dev)
-      const isDev = import.meta.env.DEV;
-      const apiUrl = isDev ? "http://localhost:8081/api/openrouter" : "/api/openrouter";
-      const directApiUrl = "https://openrouter.ai/api/v1/chat/completions";
-      
-      // For local development, we can use VITE_OPENROUTER_API_KEY from .env.local
-      // In production, always use the secure API route
-      const useDirectApi = isDev && import.meta.env.VITE_OPENROUTER_API_KEY;
-      
-      // Check if API is configured
-      if (isDev && !useDirectApi) {
-        // Show helpful message when API is not configured
-        const setupMessage = `🔧 **API Setup Required**\n\nTo use AI features, you need to configure an API key:\n\n1. Get a free API key from OpenRouter.ai\n2. Create a \`.env.local\` file in the project root\n3. Add: \`VITE_OPENROUTER_API_KEY=your_key_here\`\n4. Restart the dev server\n\nAlternatively, deploy to production where API routes are configured.`;
-        
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === aiMessageId ? { ...msg, content: setupMessage } : msg
-          )
-        );
-        setIsLoading(false);
-        
-        toast({
-          title: "API Configuration Needed",
-          description: "Please set up an OpenRouter API key to use AI features. See the chat for instructions.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      console.log("Calling OpenRouter API", useDirectApi ? "directly" : "via proxy", "with GPT model:", model);
-
-      // Try API route first (or use direct API in local dev if env var is set)
-      let response: Response;
-      
-      if (useDirectApi) {
-        // Local development: use OpenRouter directly with env var
-        response = await fetch(directApiUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(useDirectApi && {
-              "Authorization": `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
-              "HTTP-Referer": window.location.origin,
-              "X-Title": "CoCreate.AI",
-            }),
-          },
-          body: JSON.stringify({
-            model: model,
-            messages: messages,
-            temperature: 0.9,
-            max_tokens: hasImages ? 500 : 800,
-          }),
-        });
-      } else {
-        // Production or dev without env var: use API route
-        response = await fetch(apiUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: model,
-            messages: messages,
-            temperature: 0.9,
-            max_tokens: hasImages ? 500 : 800,
-          }),
-        });
-        
-        // If API route returns 404 (not found), try direct API as fallback in dev
-        if (!response.ok && response.status === 404 && isDev) {
-          console.warn("API route not found (404), falling back to direct OpenRouter API");
-          const directKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-          if (directKey) {
-            response = await fetch(directApiUrl, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${directKey}`,
-                "HTTP-Referer": window.location.origin,
-                "X-Title": "CoCreate.AI",
-              },
-              body: JSON.stringify({
-                model: model,
-                messages: messages,
-                temperature: 0.9,
-                max_tokens: hasImages ? 500 : 800,
-              }),
-            });
-          }
-        }
-      }
+      const apiUrl = "/api/openrouter";
+      if (!session?.access_token) throw new Error("Please sign in again to use the workspace.");
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: 0.9,
+          max_tokens: hasImages ? 500 : 800,
+        }),
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -330,6 +257,7 @@ const Index = () => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
             },
             body: JSON.stringify({
               model: "openai/gpt-3.5-turbo",
